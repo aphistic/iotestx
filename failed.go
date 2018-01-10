@@ -2,6 +2,7 @@ package iotestx
 
 import (
 	"bytes"
+	"io"
 )
 
 type FailedWriter struct {
@@ -14,6 +15,8 @@ type FailedWriter struct {
 
 	writes int
 }
+
+var _ io.Writer = &FailedWriter{}
 
 func NewFailedWriter(length int, failOn int, failWith error) *FailedWriter {
 	return &FailedWriter{
@@ -39,4 +42,16 @@ func (w *FailedWriter) Write(p []byte) (int, error) {
 	n, err := w.Buffer.Write(p)
 	w.writes++
 	return n, err
+}
+
+type FailedReader struct{}
+
+var _ io.Reader = &FailedReader{}
+
+func NewFailedReader() *FailedReader {
+	return &FailedReader{}
+}
+
+func (r *FailedReader) Read(d []byte) (int, error) {
+	return 0, io.ErrUnexpectedEOF
 }
